@@ -1,7 +1,13 @@
+import Header from "./_react-components/header";
+import RoommatePicker from "./_react-components/roommate-picker";
+
 export default function Home() {
 	return (
-		<div className="flex min-h-screen flex-col items-center justify-between p-24">
-			<p>HELLO</p>
+		<div>
+			<Header />
+			<main className="grid grid-cols-3 border-5 border-secondary rounded-lg p-10 m-10">
+				<RoommatePicker />
+			</main>
 		</div>
 	);
 }
