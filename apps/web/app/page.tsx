@@ -5,7 +5,7 @@ export default function Home() {
 	return (
 		<div>
 			<Header />
-			<main className="grid grid-cols-3 border-5 border-secondary rounded-lg p-10 m-10">
+			<main className="m-10 grid grid-cols-3 rounded-lg border-5 border-secondary p-10">
 				<RoommatePicker />
 			</main>
 		</div>
