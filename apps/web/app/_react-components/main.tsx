@@ -2,6 +2,7 @@
 import { useState } from "react";
 import GroceryPicker from "./grocery-picker";
 import RoommatePicker from "./roommate-picker";
+import TotalPrice from "./total-price";
 
 export default function Main() {
 	const [selectedRoommate, setSelectedRoommate] = useState<string | null>(
@@ -42,6 +43,7 @@ export default function Main() {
 					selectGrocery(grocery, price)
 				}
 			/>
+			<TotalPrice roommate={selectedRoommate} />
 		</main>
 	);
 }
