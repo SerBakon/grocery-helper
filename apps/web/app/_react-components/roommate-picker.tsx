@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Trash } from "lucide-react";
 import { useState } from "react";
 import { set } from "zod";
@@ -16,6 +17,7 @@ export default function RoommatePicker() {
 
 	const selectRoommate = (roommate: string) => {
 		setSelectedRoommate(roommate);
+		console.log(`Selected roommate: ${roommate}`);
 	};
 	const addingRoommateHandler = () => {
 		setAddingRoommate(true);
@@ -70,7 +72,11 @@ export default function RoommatePicker() {
 				>
 					<Button
 						key={roommate}
-						className="flex w-[90%] cursor-pointer items-center justify-center rounded-lg border p-3"
+						className={cn(
+							"flex w-[90%] cursor-pointer items-center justify-center rounded-lg border p-3 hover:bg-primary/50",
+							selectedRoommate === roommate &&
+								"border-primary bg-foreground text-background hover:bg-foreground",
+						)}
 						onClick={() => selectRoommate(roommate)}
 					>
 						{roommate}
