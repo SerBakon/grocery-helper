@@ -4,21 +4,21 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Trash } from "lucide-react";
 import { useState } from "react";
-import { set } from "zod";
 
-export default function RoommatePicker() {
+export default function RoommatePicker({
+	selectedRoommate,
+	selectRoommate,
+}: {
+	selectedRoommate: string | null;
+	selectRoommate: (roommate: string) => void;
+}) {
 	const [roommates, setRoommates] = useState<string[]>([
 		"Alex",
 		"Nick",
 		"Sebas",
 	]);
 	const [addingRoommate, setAddingRoommate] = useState(false);
-	const [selectedRoommate, setSelectedRoommate] = useState<string | null>(null);
 
-	const selectRoommate = (roommate: string) => {
-		setSelectedRoommate(roommate);
-		console.log(`Selected roommate: ${roommate}`);
-	};
 	const addingRoommateHandler = () => {
 		setAddingRoommate(true);
 	};
@@ -35,7 +35,7 @@ export default function RoommatePicker() {
 	};
 
 	return (
-		<div className="flex flex-col items-center justify-center gap-5 rounded-lg border bg-blue-300 p-5">
+		<div className="flex flex-col items-center gap-5 rounded-lg border bg-blue-300 p-5">
 			<div className="flex items-center justify-center">
 				<h2 className="font-bold text-2xl">Select Your Roommate</h2>
 				<Button
