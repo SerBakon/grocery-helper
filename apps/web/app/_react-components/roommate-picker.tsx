@@ -3,23 +3,29 @@
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import { useState } from "react";
+import { set } from "zod";
 
 export default function RoommatePicker() {
 	const [roommates, setRoommates] = useState<string[]>([
 		"Alex",
 		"Nick",
 		"Sebas",
-		"Bryan",
-		"Leo",
-		"Manny",
 	]);
+	const [addingRoommate, setAddingRoommate] = useState(false);
 	const [selectedRoommate, setSelectedRoommate] = useState<string | null>(null);
 
 	const selectRoommate = (roommate: string) => {
 		setSelectedRoommate(roommate);
 	};
-	const addRoommate = (name: string) => {
-		setRoommates((prev) => [...prev, name]);
+	const addingRoommateHandler = () => {
+		setAddingRoommate(true);
+	};
+	const addRoommate = (data: FormData) => {
+		const name = data.get("roommateName") as string;
+		setAddingRoommate(false);
+		if (!roommates.includes(name)) {
+			setRoommates((prev) => [...prev, name]);
+		}
 	};
 
 	const removeRoommate = (name: string) => {
@@ -30,11 +36,33 @@ export default function RoommatePicker() {
 		<div className="flex flex-col items-center justify-center gap-5 rounded-lg border bg-blue-300 p-5">
 			<div className="flex items-center justify-center">
 				<h2 className="font-bold text-2xl">Select Your Roommate</h2>
-				<Button className="ml-5 cursor-pointer rounded-lg bg-gray-600 px-4 py-2 text-background">
+				<Button
+					onClick={addingRoommateHandler}
+					className="ml-5 cursor-pointer rounded-lg bg-gray-600 px-4 py-2 text-background"
+				>
 					Add Roommate
 				</Button>
 			</div>
 			<div className="w-full border border-accent" />
+			{addingRoommate && (
+				<form
+					action={addRoommate}
+					className="flex w-full items-center justify-between"
+				>
+					<input
+						type="text"
+						placeholder="Enter roommate name"
+						name="roommateName"
+						className="flex w-[90%] rounded-lg border p-3"
+					/>
+					<Button
+						type="submit"
+						className="ml-5 cursor-pointer rounded-lg bg-gray-600 px-4 py-2 text-background"
+					>
+						Add
+					</Button>
+				</form>
+			)}
 			{roommates.map((roommate) => (
 				<div
 					key={roommate}
