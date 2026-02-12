@@ -10,6 +10,7 @@ import {
 	incrementGroceryPeople,
 	listGroceries,
 } from "../_rpc-client/rpc-client";
+import DailyChooser from "./daily-chooser";
 
 export default function Main() {
 	const [selectedRoommate, setSelectedRoommate] = useState<string | null>(null);
@@ -173,7 +174,7 @@ export default function Main() {
 		setGroceryRefreshToken((prev) => prev + 1);
 	};
 	return (
-		<main className="m-10 grid grid-cols-3 gap-5 rounded-lg border-5 border-secondary p-10">
+		<main className="m-10 grid grid-cols-4 gap-5 rounded-lg border-5 border-secondary p-10">
 			<RoommatePicker
 				selectedRoommate={selectedRoommate}
 				selectRoommate={(roommate) => selectRoommate(roommate)}
@@ -192,6 +193,7 @@ export default function Main() {
 				roommateGroceries={roommateGroceries}
 				onSubmit={submitRoommateGroceries}
 			/>
+			<DailyChooser />
 		</main>
 	);
 }

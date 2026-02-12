@@ -77,7 +77,7 @@ export default function GroceryPicker({
 					onClick={resetGroceriesHandler}
 					className="cursor-pointer bg-red-500 text-background hover:bg-red-600"
 				>
-					Reset All
+					Reset Everyone
 				</Button>
 			</div>
 			<div className="w-full border border-accent" />
