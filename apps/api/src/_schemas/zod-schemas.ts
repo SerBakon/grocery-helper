@@ -17,5 +17,10 @@ export const GroceryItemSchema = z.object({
 	numberOfPeople: z.number(),
 });
 
+export const RoommateSchema = z.object({
+	name: z.string(),
+});
+
 export type GroceryItemList = z.infer<typeof GroceryListSchema>;
 export type GroceryItem = z.infer<typeof GroceryItemSchema>;
+export type Roommate = z.infer<typeof RoommateSchema>;

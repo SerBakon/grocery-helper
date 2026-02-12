@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Trash } from "lucide-react";
-import { useState } from "react";
-import { addGrocery } from "../_rpc-client/rpc-client";
+import { useEffect, useState } from "react";
+import { addGrocery, listGroceries } from "../_rpc-client/rpc-client";
 
 export default function GroceryPicker({
 	selectedGroceries,
@@ -14,13 +14,25 @@ export default function GroceryPicker({
 	selectedGroceries: string[] | null;
 	selectGrocery: (grocery: string, price: number) => void;
 }) {
-	const [groceries, setGroceries] = useState<string[]>([
-		"Lettuce",
-		"Tomatoes",
-		"Bread",
-	]);
-	const [prices, setPrices] = useState<number[]>([1.99, 2.49, 3.5]);
+	const [groceries, setGroceries] = useState<string[]>([]);
+	const [prices, setPrices] = useState<number[]>([]);
 	const [addingGrocery, setAddingGrocery] = useState(false);
+
+	useEffect(() => {
+		let isMounted = true;
+		const loadGroceries = async () => {
+			const items = await listGroceries();
+			if (!isMounted) return;
+			setGroceries(items.map((item) => item.name));
+			setPrices(items.map((item) => item.price));
+		};
+		loadGroceries().catch((error) => {
+			console.error("Failed to load groceries", error);
+		});
+		return () => {
+			isMounted = false;
+		};
+	}, []);
 
 	const addingGroceryHandler = () => {
 		setAddingGrocery(true);

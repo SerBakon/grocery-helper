@@ -3,7 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Trash } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { addRoommate, listRoommates } from "../_rpc-client/rpc-client";
 
 export default function RoommatePicker({
 	selectedRoommate,
@@ -12,18 +13,30 @@ export default function RoommatePicker({
 	selectedRoommate: string | null;
 	selectRoommate: (roommate: string) => void;
 }) {
-	const [roommates, setRoommates] = useState<string[]>([
-		"Alex",
-		"Nick",
-		"Sebas",
-	]);
+	const [roommates, setRoommates] = useState<string[]>([]);
 	const [addingRoommate, setAddingRoommate] = useState(false);
+
+	useEffect(() => {
+		let isMounted = true;
+		const loadRoommates = async () => {
+			const items = await listRoommates();
+			if (!isMounted) return;
+			setRoommates(items.map((item) => item.name));
+		};
+		loadRoommates().catch((error) => {
+			console.error("Failed to load roommates", error);
+		});
+		return () => {
+			isMounted = false;
+		};
+	}, []);
 
 	const addingRoommateHandler = () => {
 		setAddingRoommate(true);
 	};
-	const addRoommate = (data: FormData) => {
+	const addRoommateHandler = async (data: FormData) => {
 		const name = data.get("roommateName") as string;
+		await addRoommate(name);
 		setAddingRoommate(false);
 		if (!roommates.includes(name)) {
 			setRoommates((prev) => [...prev, name]);
@@ -48,7 +61,7 @@ export default function RoommatePicker({
 			<div className="w-full border border-accent" />
 			{addingRoommate && (
 				<form
-					action={addRoommate}
+					action={addRoommateHandler}
 					className="flex w-full items-center justify-between"
 				>
 					<input

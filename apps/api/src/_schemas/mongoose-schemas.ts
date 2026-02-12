@@ -42,3 +42,12 @@ const groceryItemSchema = new mongoose.Schema(
 );
 
 export const GroceryItem = mongoose.model("GroceryItem", groceryItemSchema);
+
+const roommateSchema = new mongoose.Schema(
+	{
+		name: { type: String, required: true },
+	},
+	{ collection: "roommates" },
+);
+
+export const Roommate = mongoose.model("Roommate", roommateSchema);

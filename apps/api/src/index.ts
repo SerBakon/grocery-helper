@@ -4,8 +4,16 @@ import { cors } from "@elysiajs/cors";
 import { RPCHandler } from "@orpc/server/fetch";
 import { onError } from "@orpc/server";
 import { os } from "@orpc/server";
-import { GroceryItemSchema, GroceryListSchema } from "./_schemas/zod-schemas";
-import { GroceryItem, GroceryList } from "./_schemas/mongoose-schemas";
+import {
+	GroceryItemSchema,
+	GroceryListSchema,
+	RoommateSchema,
+} from "./_schemas/zod-schemas";
+import {
+	GroceryItem,
+	GroceryList,
+	Roommate,
+} from "./_schemas/mongoose-schemas";
 
 // Define your router
 const router = os.router({
@@ -23,6 +31,25 @@ const router = os.router({
 		const savedGrocery = await GroceryItem.create(input);
 		console.log("Saved grocery item", savedGrocery);
 		return savedGrocery;
+	}),
+	listGroceries: os.handler(async () => {
+		const groceries = await GroceryItem.find({}, { name: 1, price: 1, _id: 0 })
+			.sort({ name: 1 })
+			.lean();
+		return groceries;
+	}),
+	addRoommate: os.input(RoommateSchema).handler(async ({ input }) => {
+		const savedRoommate = await Roommate.create({
+			name: input.name,
+		});
+		console.log("Saved roommate", savedRoommate);
+		return savedRoommate;
+	}),
+	listRoommates: os.handler(async () => {
+		const roommates = await Roommate.find({}, { name: 1, _id: 0 })
+			.sort({ name: 1 })
+			.lean();
+		return roommates;
 	}),
 });
 

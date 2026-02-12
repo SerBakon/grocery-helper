@@ -5,6 +5,7 @@ import type { AppRouter } from "../../../api/src/index";
 import type {
 	GroceryItem,
 	GroceryItemList,
+	Roommate,
 } from "../../../api/src/_schemas/zod-schemas";
 
 const link = new RPCLink({
@@ -20,4 +21,16 @@ export async function addGroceryList(groceryList: GroceryItemList) {
 
 export async function addGrocery(groceryItem: GroceryItem) {
 	return client.addGrocery(groceryItem);
+}
+
+export async function listGroceries() {
+	return client.listGroceries();
+}
+
+export async function addRoommate(name: Roommate["name"]) {
+	return client.addRoommate({ name });
+}
+
+export async function listRoommates() {
+	return client.listRoommates();
 }
