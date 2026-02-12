@@ -20,7 +20,6 @@ export default function GroceryPicker({
 }) {
 	const [groceries, setGroceries] = useState<string[]>([]);
 	const [prices, setPrices] = useState<number[]>([]);
-	const [addingGrocery, setAddingGrocery] = useState(true);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -37,10 +36,6 @@ export default function GroceryPicker({
 			isMounted = false;
 		};
 	}, []);
-
-	const addingGroceryHandler = () => {
-		setAddingGrocery(true);
-	};
 	const addGroceryHandler = async (data: FormData) => {
 		const grocery = data.get("groceryName") as string;
 		const price = parseFloat(data.get("groceryPrice") as string);
@@ -63,38 +58,30 @@ export default function GroceryPicker({
 		<div className="flex flex-col gap-5 rounded-lg border bg-green-200 p-5">
 			<div className="flex justify-between">
 				<span className="font-bold text-2xl">Select Your Groceries</span>
-				{/* <Button
-					onClick={addingGroceryHandler}
-					className="cursor-pointer rounded-lg bg-gray-600 px-4 py-2 text-background hover:bg-gray-500"
-				>
-					Add Grocery
-				</Button> */}
 			</div>
 			<div className="w-full border border-accent" />
 			<div className="h-150 overflow-auto">
-				{addingGrocery && (
-					<form
-						action={addGroceryHandler}
-						className="mt-1 mb-5 ml-1 flex items-center justify-between gap-5"
+				<form
+					action={addGroceryHandler}
+					className="mt-1 mb-5 ml-1 flex items-center justify-between gap-5"
+				>
+					<Input
+						name="groceryName"
+						placeholder="Grocery"
+						className="border-primary"
+					/>
+					<Input
+						name="groceryPrice"
+						placeholder="Price"
+						className="border-primary"
+					/>
+					<Button
+						type="submit"
+						className="cursor-pointer bg-primary text-background"
 					>
-						<Input
-							name="groceryName"
-							placeholder="Grocery"
-							className="border-primary"
-						/>
-						<Input
-							name="groceryPrice"
-							placeholder="Price"
-							className="border-primary"
-						/>
-						<Button
-							type="submit"
-							className="cursor-pointer bg-primary text-background"
-						>
-							Add
-						</Button>
-					</form>
-				)}
+						Add
+					</Button>
+				</form>
 				{groceries.length > 0 &&
 					groceries.map((grocery, index) => (
 						<div key={grocery} className="flex items-center justify-between">
