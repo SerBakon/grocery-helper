@@ -51,7 +51,7 @@ export default function GroceryPicker({
 				{addingGrocery && (
 					<form
 						action={addGrocery}
-						className="ml-1 flex items-center justify-between gap-5 mt-1 mb-5"
+						className="mt-1 mb-5 ml-1 flex items-center justify-between gap-5"
 					>
 						<Input
 							name="groceryName"
@@ -77,7 +77,7 @@ export default function GroceryPicker({
 							<Button
 								onClick={() => selectGrocery(grocery, prices[index] ?? 0)}
 								className={cn(
-									"mb-2 flex w-[90%] bg-primary/50 cursor-pointer items-center justify-between rounded-lg border p-3 hover:bg-primary/90",
+									"mb-2 flex w-[90%] cursor-pointer items-center justify-between rounded-lg border bg-primary/50 p-3 hover:bg-primary/90",
 									selectedGroceries?.includes(grocery) &&
 										"bg-primary hover:bg-primary/90",
 								)}

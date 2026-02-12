@@ -8,27 +8,52 @@ export default function Main() {
 	const [selectedRoommate, setSelectedRoommate] = useState<string | null>(
 		"Alex",
 	);
-	const [selectedGroceries, setSelectedGroceries] = useState<string[] | null>(
-		null,
-	);
-	const [selectedPrices, setSelectedPrices] = useState<number[] | null>(null);
+	const [roommateSelections, setRoommateSelections] = useState<
+		Record<string, { groceries: string[]; prices: number[] }>
+	>({});
+
+	const currentSelection =
+		selectedRoommate && roommateSelections[selectedRoommate]
+			? roommateSelections[selectedRoommate]
+			: { groceries: [], prices: [] };
+
+	const roommateGroceries = selectedRoommate
+		? currentSelection.groceries.reduce<
+				{ name: string; grocery: string; price: number }[]
+			>((acc, grocery, index) => {
+				const price = currentSelection.prices[index];
+				if (price === undefined) return acc;
+				acc.push({ name: selectedRoommate, grocery, price });
+				return acc;
+			}, [])
+		: [];
 	const selectRoommate = (roommate: string) => {
 		setSelectedRoommate(roommate);
 	};
 	const selectGrocery = (grocery: string, price: number) => {
-		setSelectedGroceries((prev) => {
-			if (prev?.includes(grocery)) {
-				return prev.filter((g) => g !== grocery);
+		if (!selectedRoommate) return;
+		setRoommateSelections((prev) => {
+			const existing = prev[selectedRoommate] ?? {
+				groceries: [],
+				prices: [],
+			};
+
+			const index = existing.groceries.indexOf(grocery);
+			let groceries: string[];
+			let prices: number[];
+
+			if (index !== -1) {
+				groceries = existing.groceries.filter((_, i) => i !== index);
+				prices = existing.prices.filter((_, i) => i !== index);
 			} else {
-				return prev ? [...prev, grocery] : [grocery];
+				groceries = [...existing.groceries, grocery];
+				prices = [...existing.prices, price];
 			}
-		});
-		setSelectedPrices((prev) => {
-			if (prev?.includes(price)) {
-				return prev.filter((p) => p !== price);
-			} else {
-				return prev ? [...prev, price] : [price];
-			}
+
+			return {
+				...prev,
+				[selectedRoommate]: { groceries, prices },
+			};
 		});
 	};
 	return (
@@ -38,12 +63,15 @@ export default function Main() {
 				selectRoommate={(roommate) => selectRoommate(roommate)}
 			/>
 			<GroceryPicker
-				selectedGroceries={selectedGroceries}
+				selectedGroceries={currentSelection.groceries}
 				selectGrocery={(grocery: string, price: number) =>
 					selectGrocery(grocery, price)
 				}
 			/>
-			<TotalPrice roommate={selectedRoommate} />
+			<TotalPrice
+				roommate={selectedRoommate}
+				roommateGroceries={roommateGroceries}
+			/>
 		</main>
 	);
 }
