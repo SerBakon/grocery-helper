@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { useEffect, useRef, useState } from "react";
 
 type RoommateGrocery = {
 	name: string | null;
@@ -14,8 +15,21 @@ export default function TotalPrice({
 }: {
 	roommate: string | null;
 	roommateGroceries: RoommateGrocery[];
-	onSubmit: () => void;
+	onSubmit: () => Promise<void>;
 }) {
+	const [saveStatus, setSaveStatus] = useState<
+		"idle" | "saving" | "saved" | "error"
+	>("idle");
+	const statusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+	useEffect(() => {
+		return () => {
+			if (statusTimeoutRef.current) {
+				clearTimeout(statusTimeoutRef.current);
+			}
+		};
+	}, []);
+
 	const itemsForRoommate = roommateGroceries.filter(
 		(item) => item.name === roommate,
 	);
@@ -23,6 +37,24 @@ export default function TotalPrice({
 		(sum, item) => sum + item.price,
 		0,
 	);
+
+	const handleSave = async () => {
+		if (saveStatus === "saving") return;
+		setSaveStatus("saving");
+		try {
+			await onSubmit();
+			setSaveStatus("saved");
+			if (statusTimeoutRef.current) {
+				clearTimeout(statusTimeoutRef.current);
+			}
+			statusTimeoutRef.current = setTimeout(() => {
+				setSaveStatus("idle");
+			}, 2000);
+		} catch (error) {
+			console.error("Failed to save roommate groceries", error);
+			setSaveStatus("error");
+		}
+	};
 
 	return (
 		<div className="flex flex-col gap-2 rounded-lg border bg-red-300 p-5">
@@ -51,12 +83,21 @@ export default function TotalPrice({
 				</div>
 			)}
 			{itemsForRoommate.length > 0 ? (
-				<Button
-					className="cursor-pointer hover:bg-primary/70"
-					onClick={onSubmit}
-				>
-					Submit
-				</Button>
+				<div className="flex flex-col items-center gap-3">
+					<Button
+						disabled={saveStatus === "saving"}
+						className="cursor-pointer hover:bg-primary/70 w-full"
+						onClick={handleSave}
+					>
+						{saveStatus === "saving" ? "Saving..." : "Save"}
+					</Button>
+					{saveStatus === "saved" ? (
+						<span className="text-sm text-green-700">Saved</span>
+					) : null}
+					{saveStatus === "error" ? (
+						<span className="text-sm text-red-700">Save failed</span>
+					) : null}
+				</div>
 			) : null}
 		</div>
 	);

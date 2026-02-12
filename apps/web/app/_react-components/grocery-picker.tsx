@@ -77,12 +77,13 @@ export default function GroceryPicker({
 		<div className="flex flex-col gap-5 rounded-lg border bg-green-200 p-5">
 			<div className="flex justify-between">
 				<span className="font-bold text-2xl">Select Your Groceries</span>
-				<Button
+				{/* Uncomment ONLY FOR DEV PURPOSES */}
+				{/* <Button
 					onClick={resetGroceriesHandler}
 					className="cursor-pointer bg-red-500 text-background hover:bg-red-600"
 				>
 					Reset Everyone
-				</Button>
+				</Button> */}
 			</div>
 			<div className="w-full border border-accent" />
 			<div className="h-150 overflow-auto">
