@@ -11,6 +11,7 @@ import {
 	listGroceries,
 	resetGroceries,
 } from "../_rpc-client/rpc-client";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function GroceryPicker({
 	selectedGroceries,
@@ -86,7 +87,7 @@ export default function GroceryPicker({
 				</Button> */}
 			</div>
 			<div className="w-full border border-accent" />
-			<div className="h-150 overflow-auto">
+			<ScrollArea className="h-150 overflow-auto">
 				<form
 					action={addGroceryHandler}
 					onSubmit={(event) => {
@@ -146,11 +147,11 @@ export default function GroceryPicker({
 				</form>
 				{items.length > 0 &&
 					items.map((item, index) => (
-						<div key={item.name} className="flex items-center justify-between">
+						<div key={item.name} className="flex items-center">
 							<Button
 								onClick={() => selectGrocery(item.name, item.price ?? 0)}
 								className={cn(
-									"mb-2 flex w-[90%] cursor-pointer items-center justify-between rounded-lg border bg-primary/50 p-3 hover:bg-primary/90",
+									"mb-2 flex w-[85%] cursor-pointer items-center justify-between rounded-lg border bg-primary/50 p-3 hover:bg-primary/90",
 									selectedGroceries?.includes(item.name) &&
 										"bg-primary hover:bg-primary/90",
 								)}
@@ -173,7 +174,7 @@ export default function GroceryPicker({
 							/>
 						</div>
 					))}
-			</div>
+			</ScrollArea>
 		</div>
 	);
 }

@@ -8,6 +8,7 @@ import {
 } from "../_rpc-client/rpc-client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function DailyChooser({
 	refreshToken,
@@ -165,33 +166,39 @@ export default function DailyChooser({
 				</div>
 			</div>
 			<div className="w-full border" />
-			<div className="grid max-h-[400px] grid-cols-2 gap-4 overflow-y-auto">
-				{groceries.map((grocery) => (
-					<Button
-						className={cn(
-							"mb-2 flex cursor-pointer items-center justify-between rounded-lg border bg-primary/50 p-3 hover:bg-primary/90",
-							weeklyList.has(grocery.name) ? "bg-primary text-background" : "",
-						)}
-						key={grocery.name}
-						onClick={() => updateWeeklyList(grocery.name)}
-					>
-						{grocery.name}
-					</Button>
-				))}
-			</div>
-			<div className="flex flex-col gap-1 border-t pt-2 text-lg max-h-[200px] overflow-auto">
-				<h3 className="font-semibold">Total due by roommate</h3>
-				{roommates.length === 0 ? (
-					<span className="text-sm text-gray-700">No roommates yet.</span>
-				) : (
-					roommates.map((name) => (
-						<div key={name} className="flex w-full justify-between">
-							<span>{name}</span>
-							<span>${(totalsByRoommate[name] ?? 0).toFixed(2)}</span>
-						</div>
-					))
-				)}
-			</div>
+			<ScrollArea>
+				<div className="grid max-h-[400px] grid-cols-2 gap-4">
+					{groceries.map((grocery) => (
+						<Button
+							className={cn(
+								"mb-2 flex cursor-pointer items-center justify-between rounded-lg border bg-primary/50 p-3 hover:bg-primary/90",
+								weeklyList.has(grocery.name)
+									? "bg-primary text-background"
+									: "",
+							)}
+							key={grocery.name}
+							onClick={() => updateWeeklyList(grocery.name)}
+						>
+							{grocery.name}
+						</Button>
+					))}
+				</div>
+			</ScrollArea>
+			<ScrollArea>
+				<div className="flex flex-col gap-1 border-t pt-2 text-lg max-h-[200px]">
+					<h3 className="font-semibold">Total due by roommate</h3>
+					{roommates.length === 0 ? (
+						<span className="text-sm text-gray-700">No roommates yet.</span>
+					) : (
+						roommates.map((name) => (
+							<div key={name} className="flex w-full justify-between">
+								<span>{name}</span>
+								<span>${(totalsByRoommate[name] ?? 0).toFixed(2)}</span>
+							</div>
+						))
+					)}
+				</div>
+			</ScrollArea>
 		</div>
 	);
 }
