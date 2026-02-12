@@ -19,6 +19,10 @@ export default function TotalPrice({
 	const itemsForRoommate = roommateGroceries.filter(
 		(item) => item.name === roommate,
 	);
+	const totalPrice = itemsForRoommate.reduce(
+		(sum, item) => sum + item.price,
+		0,
+	);
 
 	return (
 		<div className="flex flex-col gap-2 rounded-lg border bg-red-300 p-5">
@@ -40,6 +44,12 @@ export default function TotalPrice({
 					</span>
 				)}
 			</div>
+			{itemsForRoommate.length > 0 && (
+				<div className="flex w-full justify-between border-t pt-2 text-lg font-semibold">
+					<span>Total</span>
+					<span>${totalPrice.toFixed(2)}</span>
+				</div>
+			)}
 			{itemsForRoommate.length > 0 ? (
 				<Button
 					className="cursor-pointer hover:bg-primary/70"

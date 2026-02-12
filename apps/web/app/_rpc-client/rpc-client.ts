@@ -54,3 +54,7 @@ export async function incrementGroceryPeople(name: string) {
 export async function decrementGroceryPeople(name: string) {
 	return client.decrementGroceryPeople({ name });
 }
+
+export async function resetGroceries() {
+	return client.resetGroceries();
+}

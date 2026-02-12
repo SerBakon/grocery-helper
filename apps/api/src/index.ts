@@ -94,6 +94,14 @@ const router = os.router({
 			);
 			return result;
 		}),
+	resetGroceries: os.handler(async () => {
+		await GroceryList.deleteMany({});
+		const result = await GroceryItem.updateMany(
+			{},
+			{ $set: { numberOfPeople: 0 } },
+		);
+		return { updatedCount: result.modifiedCount };
+	}),
 });
 
 export type AppRouter = typeof router;

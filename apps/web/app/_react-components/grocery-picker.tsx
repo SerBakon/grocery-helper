@@ -9,20 +9,27 @@ import {
 	addGrocery,
 	deleteGrocery as deleteGroceryRPC,
 	listGroceries,
+	resetGroceries,
 } from "../_rpc-client/rpc-client";
 
 export default function GroceryPicker({
 	selectedGroceries,
+	committedGroceries,
 	selectGrocery,
 	refreshToken,
+	onReset,
 }: {
 	selectedGroceries: string[] | null;
+	committedGroceries: string[];
 	selectGrocery: (grocery: string, price: number) => void;
 	refreshToken: number;
+	onReset: () => void;
 }) {
 	const [items, setItems] = useState<
 		{ name: string; price: number; numberOfPeople?: number }[]
 	>([]);
+	const selectedSet = new Set(selectedGroceries ?? []);
+	const committedSet = new Set(committedGroceries);
 	const nameInputRef = useRef<HTMLInputElement>(null);
 	const priceInputRef = useRef<HTMLInputElement>(null);
 
@@ -56,10 +63,22 @@ export default function GroceryPicker({
 		await deleteGroceryRPC(grocery.name);
 		setItems((prev) => prev.filter((_, i) => i !== index));
 	};
+	const resetGroceriesHandler = async () => {
+		await resetGroceries();
+		const refreshedItems = await listGroceries();
+		setItems(refreshedItems);
+		onReset();
+	};
 	return (
 		<div className="flex flex-col gap-5 rounded-lg border bg-green-200 p-5">
 			<div className="flex justify-between">
 				<span className="font-bold text-2xl">Select Your Groceries</span>
+				<Button
+					onClick={resetGroceriesHandler}
+					className="cursor-pointer bg-red-500 text-background hover:bg-red-600"
+				>
+					Reset All
+				</Button>
 			</div>
 			<div className="w-full border border-accent" />
 			<div className="h-150 overflow-auto">
@@ -119,7 +138,13 @@ export default function GroceryPicker({
 								)}
 							>
 								<span>
-									{item.name} / {item.numberOfPeople ?? 0}
+									{item.name} /{" "}
+									{Math.max(
+										0,
+										(item.numberOfPeople ?? 0) +
+											(selectedSet.has(item.name) ? 1 : 0) -
+											(committedSet.has(item.name) ? 1 : 0),
+									)}
 								</span>
 								<span>${item.price?.toFixed(2) ?? "0"}</span>
 							</Button>

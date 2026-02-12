@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GroceryPicker from "./grocery-picker";
 import RoommatePicker from "./roommate-picker";
 import TotalPrice from "./total-price";
@@ -8,6 +8,7 @@ import {
 	decrementGroceryPeople,
 	getRoommateGroceries,
 	incrementGroceryPeople,
+	listGroceries,
 } from "../_rpc-client/rpc-client";
 
 export default function Main() {
@@ -19,19 +20,62 @@ export default function Main() {
 		Record<string, { groceries: string[]; prices: number[] }>
 	>({});
 	const [groceryRefreshToken, setGroceryRefreshToken] = useState(0);
+	const [groceryInfoByName, setGroceryInfoByName] = useState<
+		Record<string, { price: number; numberOfPeople?: number }>
+	>({});
 
 	const currentSelection =
 		selectedRoommate && roommateSelections[selectedRoommate]
 			? roommateSelections[selectedRoommate]
 			: { groceries: [], prices: [] };
+	const committedSelection =
+		selectedRoommate && committedSelections[selectedRoommate]
+			? committedSelections[selectedRoommate]
+			: { groceries: [], prices: [] };
+
+	useEffect(() => {
+		let isMounted = true;
+		const loadGroceries = async () => {
+			const groceries = await listGroceries();
+			if (!isMounted) return;
+			const nextInfo = groceries.reduce<
+				Record<string, { price: number; numberOfPeople?: number }>
+			>((acc, grocery) => {
+				acc[grocery.name] = {
+					price: grocery.price,
+					numberOfPeople: grocery.numberOfPeople,
+				};
+				return acc;
+			}, {});
+			setGroceryInfoByName(nextInfo);
+		};
+		loadGroceries().catch((error) => {
+			console.error("Failed to load groceries", error);
+		});
+		return () => {
+			isMounted = false;
+		};
+	}, [groceryRefreshToken]);
+
+	const draftSet = new Set(currentSelection.groceries);
+	const committedSet = new Set(committedSelection.groceries);
 
 	const roommateGroceries = selectedRoommate
 		? currentSelection.groceries.reduce<
 				{ name: string; grocery: string; price: number }[]
 			>((acc, grocery, index) => {
-				const price = currentSelection.prices[index];
-				if (price === undefined) return acc;
-				acc.push({ name: selectedRoommate, grocery, price });
+				const fallbackPrice = currentSelection.prices[index];
+				if (fallbackPrice === undefined) return acc;
+				const groceryInfo = groceryInfoByName[grocery];
+				const basePrice = groceryInfo?.price ?? fallbackPrice;
+				const peopleCount = Math.max(
+					1,
+					(groceryInfo?.numberOfPeople ?? 0) +
+						(draftSet.has(grocery) ? 1 : 0) -
+						(committedSet.has(grocery) ? 1 : 0),
+				);
+				const perPersonPrice = basePrice / peopleCount;
+				acc.push({ name: selectedRoommate, grocery, price: perPersonPrice });
 				return acc;
 			}, [])
 		: [];
@@ -121,6 +165,13 @@ export default function Main() {
 			console.error("Failed to submit grocery list", error);
 		}
 	};
+
+	const resetSelections = () => {
+		setRoommateSelections({});
+		setCommittedSelections({});
+		setSelectedRoommate(null);
+		setGroceryRefreshToken((prev) => prev + 1);
+	};
 	return (
 		<main className="m-10 grid grid-cols-3 gap-5 rounded-lg border-5 border-secondary p-10">
 			<RoommatePicker
@@ -129,10 +180,12 @@ export default function Main() {
 			/>
 			<GroceryPicker
 				selectedGroceries={currentSelection.groceries}
+				committedGroceries={committedSelection.groceries}
 				selectGrocery={(grocery: string, price: number) =>
 					selectGrocery(grocery, price)
 				}
 				refreshToken={groceryRefreshToken}
+				onReset={resetSelections}
 			/>
 			<TotalPrice
 				roommate={selectedRoommate}
