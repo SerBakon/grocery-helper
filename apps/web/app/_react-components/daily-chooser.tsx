@@ -2,14 +2,22 @@ import { useEffect, useRef, useState } from "react";
 import {
 	getWeeklyList,
 	listGroceries,
+	listRoommates,
 	saveWeeklyList,
+	getRoommateGroceries,
 } from "../_rpc-client/rpc-client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export default function DailyChooser() {
-	const [groceries, setGroceries] = useState<string[]>([]);
+	const [groceries, setGroceries] = useState<
+		{ name: string; price: number; numberOfPeople?: number }[]
+	>([]);
 	const [weeklyList, setWeeklyList] = useState<Set<string>>(new Set());
+	const [roommates, setRoommates] = useState<string[]>([]);
+	const [roommateLists, setRoommateLists] = useState<
+		Record<string, { name: string; price: number }[]>
+	>({});
 	const [saveStatus, setSaveStatus] = useState<
 		"idle" | "saving" | "saved" | "error"
 	>("idle");
@@ -24,7 +32,27 @@ export default function DailyChooser() {
 				getWeeklyList(),
 			]);
 			if (!isMounted) return;
-			setGroceries(items.map((item) => item.name));
+			setGroceries(items);
+			const roommateItems = await listRoommates();
+			if (!isMounted) return;
+			const roommateNames = roommateItems.map((item) => item.name);
+			setRoommates(roommateNames);
+			const roommateListsResult = await Promise.all(
+				roommateNames.map(async (name) => {
+					const list = await getRoommateGroceries(name);
+					return [name, list] as const;
+				}),
+			);
+			if (!isMounted) return;
+			setRoommateLists(
+				roommateListsResult.reduce(
+					(acc, [name, list]) => {
+						acc[name] = list;
+						return acc;
+					},
+					{} as Record<string, { name: string; price: number }[]>,
+				),
+			);
 			const nextList = new Set(weekly.groceries);
 			savedWeeklyListRef.current = nextList;
 			setWeeklyList(nextList);
@@ -65,6 +93,32 @@ export default function DailyChooser() {
 			});
 		}
 	};
+
+	const groceryByName = groceries.reduce<
+		Record<string, { price: number; numberOfPeople?: number }>
+	>((acc, item) => {
+		acc[item.name] = {
+			price: item.price,
+			numberOfPeople: item.numberOfPeople,
+		};
+		return acc;
+	}, {});
+
+	const totalsByRoommate = roommates.reduce<Record<string, number>>(
+		(acc, name) => {
+			const list = roommateLists[name] ?? [];
+			const total = list.reduce((sum, item) => {
+				if (!weeklyList.has(item.name)) return sum;
+				const groceryInfo = groceryByName[item.name];
+				const price = groceryInfo?.price ?? item.price ?? 0;
+				const peopleCount = Math.max(1, groceryInfo?.numberOfPeople ?? 0);
+				return sum + price / peopleCount;
+			}, 0);
+			acc[name] = total;
+			return acc;
+		},
+		{},
+	);
 
 	const handleSave = async () => {
 		if (!isDirty || saveStatus === "saving") return;
@@ -111,16 +165,28 @@ export default function DailyChooser() {
 					<Button
 						className={cn(
 							"mb-2 flex cursor-pointer items-center justify-between rounded-lg border bg-primary/50 p-3 hover:bg-primary/90",
-							weeklyList.has(grocery) ? "bg-primary text-background" : "",
+							weeklyList.has(grocery.name) ? "bg-primary text-background" : "",
 						)}
-						key={grocery}
-						onClick={() => updateWeeklyList(grocery)}
+						key={grocery.name}
+						onClick={() => updateWeeklyList(grocery.name)}
 					>
-						{grocery}
+						{grocery.name}
 					</Button>
 				))}
 			</div>
-			<p>Selected groceries: {Array.from(weeklyList).join(", ")}</p>
+			<div className="flex flex-col gap-1 border-t pt-2 text-lg">
+				<h3 className="font-semibold">Total due by roommate</h3>
+				{roommates.length === 0 ? (
+					<span className="text-sm text-gray-700">No roommates yet.</span>
+				) : (
+					roommates.map((name) => (
+						<div key={name} className="flex w-full justify-between">
+							<span>{name}</span>
+							<span>${(totalsByRoommate[name] ?? 0).toFixed(2)}</span>
+						</div>
+					))
+				)}
+			</div>
 		</div>
 	);
 }
