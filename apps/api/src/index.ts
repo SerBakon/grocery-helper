@@ -113,6 +113,38 @@ const app = new Elysia().use(
 // Test endpoints
 app.get("/ping", () => "pong");
 app.get("/", () => "Hello Elysia");
+app.post("/add", async () => {
+	const roommateName = "Test";
+	const groceries = [
+		{ name: "Milk", price: 3.5, numberOfPeople: 0 },
+		{ name: "Bread", price: 2.25, numberOfPeople: 0 },
+		{ name: "Eggs", price: 4.1, numberOfPeople: 0 },
+		{ name: "Cheese", price: 5.75, numberOfPeople: 0 },
+		{ name: "Apples", price: 3.2, numberOfPeople: 0 },
+		{ name: "Rice", price: 6.4, numberOfPeople: 0 },
+		{ name: "Bananas", price: 1.9, numberOfPeople: 0 },
+		{ name: "Chicken", price: 7.8, numberOfPeople: 0 },
+		{ name: "Pasta", price: 2.6, numberOfPeople: 0 },
+		{ name: "Tomatoes", price: 3.15, numberOfPeople: 0 },
+		{ name: "Coffee", price: 8.5, numberOfPeople: 0 },
+	];
+
+	const savedRoommate = await Roommate.findOneAndUpdate(
+		{ name: roommateName },
+		{ $set: { name: roommateName } },
+		{ new: true, upsert: true },
+	);
+
+	await GroceryItem.deleteMany({
+		name: { $in: groceries.map((item) => item.name) },
+	});
+	const savedGroceries = await GroceryItem.insertMany(groceries);
+
+	return {
+		roommate: savedRoommate,
+		groceries: savedGroceries,
+	};
+});
 
 // RPC endpoint
 app.all(
