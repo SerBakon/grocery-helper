@@ -9,7 +9,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export default function DailyChooser() {
+export default function DailyChooser({
+	refreshToken,
+}: {
+	refreshToken: number;
+}) {
 	const [groceries, setGroceries] = useState<
 		{ name: string; price: number; numberOfPeople?: number }[]
 	>([]);
@@ -26,6 +30,7 @@ export default function DailyChooser() {
 
 	useEffect(() => {
 		let isMounted = true;
+		setSaveStatus("idle");
 		const loadData = async () => {
 			const [items, weekly] = await Promise.all([
 				listGroceries(),
@@ -66,7 +71,7 @@ export default function DailyChooser() {
 			}
 			isMounted = false;
 		};
-	}, []);
+	}, [refreshToken]);
 
 	const areSetsEqual = (left: Set<string>, right: Set<string>) => {
 		if (left.size !== right.size) return false;

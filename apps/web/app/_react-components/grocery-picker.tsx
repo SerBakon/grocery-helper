@@ -18,12 +18,14 @@ export default function GroceryPicker({
 	selectGrocery,
 	refreshToken,
 	onReset,
+	onGroceryAdded,
 }: {
 	selectedGroceries: string[] | null;
 	committedGroceries: string[];
 	selectGrocery: (grocery: string, price: number) => void;
 	refreshToken: number;
 	onReset: () => void;
+	onGroceryAdded: () => void;
 }) {
 	const [items, setItems] = useState<
 		{ name: string; price: number; numberOfPeople?: number }[]
@@ -55,6 +57,7 @@ export default function GroceryPicker({
 			price,
 		});
 		setItems((prev) => [...prev, { name: grocery, price, numberOfPeople: 0 }]);
+		onGroceryAdded();
 		setTimeout(() => nameInputRef.current?.focus(), 0);
 	};
 	const deleteGrocery = async (index: number) => {
