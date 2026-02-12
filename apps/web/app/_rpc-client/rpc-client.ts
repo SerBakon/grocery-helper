@@ -67,3 +67,7 @@ export async function saveWeeklyList(list: WeeklyList) {
 export async function getWeeklyList() {
 	return client.getWeeklyList();
 }
+
+export async function add() {
+	return client.add();
+}

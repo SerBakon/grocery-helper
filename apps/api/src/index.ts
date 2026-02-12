@@ -18,6 +18,42 @@ import {
 	WeeklyList,
 } from "./_schemas/mongoose-schemas";
 
+const seedTestData = async () => {
+	const roommateName = "Test";
+	const groceries = [
+		{ name: "Milk", price: 3.5, numberOfPeople: 0 },
+		{ name: "Bread", price: 2.25, numberOfPeople: 0 },
+		{ name: "Eggs", price: 4.1, numberOfPeople: 0 },
+		{ name: "Cheese", price: 5.75, numberOfPeople: 0 },
+		{ name: "Apples", price: 3.2, numberOfPeople: 0 },
+		{ name: "Rice", price: 6.4, numberOfPeople: 0 },
+		{ name: "Bananas", price: 1.9, numberOfPeople: 0 },
+		{ name: "Chicken", price: 7.8, numberOfPeople: 0 },
+		{ name: "Pasta", price: 2.6, numberOfPeople: 0 },
+		{ name: "Tomatoes", price: 3.15, numberOfPeople: 0 },
+		{ name: "Coffee", price: 8.5, numberOfPeople: 0 },
+	].map((item) => ({
+		...item,
+		price: Math.round(item.price),
+	}));
+
+	const savedRoommate = await Roommate.findOneAndUpdate(
+		{ name: roommateName },
+		{ $set: { name: roommateName } },
+		{ new: true, upsert: true },
+	);
+
+	await GroceryItem.deleteMany({
+		name: { $in: groceries.map((item) => item.name) },
+	});
+	const savedGroceries = await GroceryItem.insertMany(groceries);
+
+	return {
+		roommate: savedRoommate,
+		groceries: savedGroceries,
+	};
+};
+
 // Define your router
 const router = os.router({
 	addGroceryList: os.input(GroceryListSchema).handler(async ({ input }) => {
@@ -46,6 +82,10 @@ const router = os.router({
 	}),
 	deleteGrocery: os.input(GroceryNameSchema).handler(async ({ input }) => {
 		const result = await GroceryItem.deleteOne({ name: input.name });
+		await WeeklyList.updateOne(
+			{ name: "weeklylist" },
+			{ $pull: { groceries: input.name } },
+		);
 		return { deletedCount: result.deletedCount };
 	}),
 	addRoommate: os.input(RoommateSchema).handler(async ({ input }) => {
@@ -119,6 +159,9 @@ const router = os.router({
 		).lean();
 		return { groceries: list?.groceries ?? [] };
 	}),
+	add: os.handler(async () => {
+		return seedTestData();
+	}),
 });
 
 export type AppRouter = typeof router;
@@ -141,38 +184,7 @@ const app = new Elysia().use(
 // Test endpoints
 app.get("/ping", () => "pong");
 app.get("/", () => "Hello Elysia");
-app.post("/add", async () => {
-	const roommateName = "Test";
-	const groceries = [
-		{ name: "Milk", price: 3.5, numberOfPeople: 0 },
-		{ name: "Bread", price: 2.25, numberOfPeople: 0 },
-		{ name: "Eggs", price: 4.1, numberOfPeople: 0 },
-		{ name: "Cheese", price: 5.75, numberOfPeople: 0 },
-		{ name: "Apples", price: 3.2, numberOfPeople: 0 },
-		{ name: "Rice", price: 6.4, numberOfPeople: 0 },
-		{ name: "Bananas", price: 1.9, numberOfPeople: 0 },
-		{ name: "Chicken", price: 7.8, numberOfPeople: 0 },
-		{ name: "Pasta", price: 2.6, numberOfPeople: 0 },
-		{ name: "Tomatoes", price: 3.15, numberOfPeople: 0 },
-		{ name: "Coffee", price: 8.5, numberOfPeople: 0 },
-	];
-
-	const savedRoommate = await Roommate.findOneAndUpdate(
-		{ name: roommateName },
-		{ $set: { name: roommateName } },
-		{ new: true, upsert: true },
-	);
-
-	await GroceryItem.deleteMany({
-		name: { $in: groceries.map((item) => item.name) },
-	});
-	const savedGroceries = await GroceryItem.insertMany(groceries);
-
-	return {
-		roommate: savedRoommate,
-		groceries: savedGroceries,
-	};
-});
+app.get("/rpc/add", async () => seedTestData());
 
 // RPC endpoint
 app.all(

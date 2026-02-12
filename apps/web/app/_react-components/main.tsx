@@ -187,7 +187,7 @@ export default function Main() {
 				}
 				refreshToken={groceryRefreshToken}
 				onReset={resetSelections}
-				onGroceryAdded={() => setGroceryRefreshToken((prev) => prev + 1)}
+				onGroceryChanged={() => setGroceryRefreshToken((prev) => prev + 1)}
 			/>
 			<TotalPrice
 				roommate={selectedRoommate}
