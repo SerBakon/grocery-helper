@@ -34,7 +34,10 @@ const router = os.router({
 		return savedGrocery;
 	}),
 	listGroceries: os.handler(async () => {
-		const groceries = await GroceryItem.find({}, { name: 1, price: 1, _id: 0 })
+		const groceries = await GroceryItem.find(
+			{},
+			{ name: 1, price: 1, numberOfPeople: 1, _id: 0 },
+		)
 			.sort({ name: 1 })
 			.lean();
 		return groceries;

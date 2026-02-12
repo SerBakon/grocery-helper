@@ -14,12 +14,15 @@ import {
 export default function GroceryPicker({
 	selectedGroceries,
 	selectGrocery,
+	refreshToken,
 }: {
 	selectedGroceries: string[] | null;
 	selectGrocery: (grocery: string, price: number) => void;
+	refreshToken: number;
 }) {
-	const [groceries, setGroceries] = useState<string[]>([]);
-	const [prices, setPrices] = useState<number[]>([]);
+	const [items, setItems] = useState<
+		{ name: string; price: number; numberOfPeople?: number }[]
+	>([]);
 	const nameInputRef = useRef<HTMLInputElement>(null);
 	const priceInputRef = useRef<HTMLInputElement>(null);
 
@@ -28,8 +31,7 @@ export default function GroceryPicker({
 		const loadGroceries = async () => {
 			const items = await listGroceries();
 			if (!isMounted) return;
-			setGroceries(items.map((item) => item.name));
-			setPrices(items.map((item) => item.price));
+			setItems(items);
 		};
 		loadGroceries().catch((error) => {
 			console.error("Failed to load groceries", error);
@@ -37,7 +39,7 @@ export default function GroceryPicker({
 		return () => {
 			isMounted = false;
 		};
-	}, []);
+	}, [refreshToken]);
 	const addGroceryHandler = async (data: FormData) => {
 		const grocery = data.get("groceryName") as string;
 		const price = parseFloat(data.get("groceryPrice") as string);
@@ -45,16 +47,14 @@ export default function GroceryPicker({
 			name: grocery,
 			price,
 		});
-		setGroceries((prev) => [...prev, grocery]);
-		setPrices((prev) => [...prev, price]);
+		setItems((prev) => [...prev, { name: grocery, price, numberOfPeople: 0 }]);
 		setTimeout(() => nameInputRef.current?.focus(), 0);
 	};
 	const deleteGrocery = async (index: number) => {
-		const grocery = groceries[index];
+		const grocery = items[index];
 		if (!grocery) return;
-		await deleteGroceryRPC(grocery);
-		setGroceries((prev) => prev.filter((_, i) => i !== index));
-		setPrices((prev) => prev.filter((_, i) => i !== index));
+		await deleteGroceryRPC(grocery.name);
+		setItems((prev) => prev.filter((_, i) => i !== index));
 	};
 	return (
 		<div className="flex flex-col gap-5 rounded-lg border bg-green-200 p-5">
@@ -107,19 +107,21 @@ export default function GroceryPicker({
 						Add
 					</Button>
 				</form>
-				{groceries.length > 0 &&
-					groceries.map((grocery, index) => (
-						<div key={grocery} className="flex items-center justify-between">
+				{items.length > 0 &&
+					items.map((item, index) => (
+						<div key={item.name} className="flex items-center justify-between">
 							<Button
-								onClick={() => selectGrocery(grocery, prices[index] ?? 0)}
+								onClick={() => selectGrocery(item.name, item.price ?? 0)}
 								className={cn(
 									"mb-2 flex w-[90%] cursor-pointer items-center justify-between rounded-lg border bg-primary/50 p-3 hover:bg-primary/90",
-									selectedGroceries?.includes(grocery) &&
+									selectedGroceries?.includes(item.name) &&
 										"bg-primary hover:bg-primary/90",
 								)}
 							>
-								<span>{grocery}</span>
-								<span>${prices[index]?.toFixed(2) ?? "0"}</span>
+								<span>
+									{item.name} / {item.numberOfPeople ?? 0}
+								</span>
+								<span>${item.price?.toFixed(2) ?? "0"}</span>
 							</Button>
 							<Trash
 								onClick={() => deleteGrocery(index)}

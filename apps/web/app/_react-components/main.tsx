@@ -4,6 +4,7 @@ import GroceryPicker from "./grocery-picker";
 import RoommatePicker from "./roommate-picker";
 import TotalPrice from "./total-price";
 import {
+	addGroceryList,
 	decrementGroceryPeople,
 	getRoommateGroceries,
 	incrementGroceryPeople,
@@ -14,6 +15,10 @@ export default function Main() {
 	const [roommateSelections, setRoommateSelections] = useState<
 		Record<string, { groceries: string[]; prices: number[] }>
 	>({});
+	const [committedSelections, setCommittedSelections] = useState<
+		Record<string, { groceries: string[]; prices: number[] }>
+	>({});
+	const [groceryRefreshToken, setGroceryRefreshToken] = useState(0);
 
 	const currentSelection =
 		selectedRoommate && roommateSelections[selectedRoommate]
@@ -34,13 +39,19 @@ export default function Main() {
 		setSelectedRoommate(roommate);
 		try {
 			const groceryList = await getRoommateGroceries(roommate);
+			const nextSelection = {
+				groceries: groceryList.map((item) => item.name),
+				prices: groceryList.map((item) => item.price),
+			};
 			setRoommateSelections((prev) => ({
 				...prev,
-				[roommate]: {
-					groceries: groceryList.map((item) => item.name),
-					prices: groceryList.map((item) => item.price),
-				},
+				[roommate]: nextSelection,
 			}));
+			setCommittedSelections((prev) => ({
+				...prev,
+				[roommate]: nextSelection,
+			}));
+			setGroceryRefreshToken((prev) => prev + 1);
 		} catch (error) {
 			console.error("Failed to load roommate grocery list", error);
 		}
@@ -54,16 +65,6 @@ export default function Main() {
 
 		const index = existing.groceries.indexOf(grocery);
 		const isRemoving = index !== -1;
-
-		try {
-			if (isRemoving) {
-				await decrementGroceryPeople(grocery);
-			} else {
-				await incrementGroceryPeople(grocery);
-			}
-		} catch (error) {
-			console.error("Failed to update grocery people count", error);
-		}
 
 		setRoommateSelections((prev) => {
 			let groceries: string[];
@@ -83,6 +84,43 @@ export default function Main() {
 			};
 		});
 	};
+	const submitRoommateGroceries = async () => {
+		if (!selectedRoommate) return;
+		const draft = roommateSelections[selectedRoommate];
+		if (!draft || draft.groceries.length === 0) return;
+		const committed = committedSelections[selectedRoommate] ?? {
+			groceries: [],
+			prices: [],
+		};
+
+		const committedSet = new Set(committed.groceries);
+		const draftSet = new Set(draft.groceries);
+		const toAdd = draft.groceries.filter((name) => !committedSet.has(name));
+		const toRemove = committed.groceries.filter((name) => !draftSet.has(name));
+
+		try {
+			await addGroceryList({
+				name: selectedRoommate,
+				groceries: draft.groceries.map((grocery, index) => ({
+					name: grocery,
+					price: draft.prices[index] ?? 0,
+				})),
+			});
+
+			await Promise.all([
+				...toAdd.map((name) => incrementGroceryPeople(name)),
+				...toRemove.map((name) => decrementGroceryPeople(name)),
+			]);
+
+			setCommittedSelections((prev) => ({
+				...prev,
+				[selectedRoommate]: draft,
+			}));
+			setGroceryRefreshToken((prev) => prev + 1);
+		} catch (error) {
+			console.error("Failed to submit grocery list", error);
+		}
+	};
 	return (
 		<main className="m-10 grid grid-cols-3 gap-5 rounded-lg border-5 border-secondary p-10">
 			<RoommatePicker
@@ -94,10 +132,12 @@ export default function Main() {
 				selectGrocery={(grocery: string, price: number) =>
 					selectGrocery(grocery, price)
 				}
+				refreshToken={groceryRefreshToken}
 			/>
 			<TotalPrice
 				roommate={selectedRoommate}
 				roommateGroceries={roommateGroceries}
+				onSubmit={submitRoommateGroceries}
 			/>
 		</main>
 	);
