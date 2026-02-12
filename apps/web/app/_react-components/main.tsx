@@ -5,9 +5,7 @@ import RoommatePicker from "./roommate-picker";
 import TotalPrice from "./total-price";
 
 export default function Main() {
-	const [selectedRoommate, setSelectedRoommate] = useState<string | null>(
-		"Alex",
-	);
+	const [selectedRoommate, setSelectedRoommate] = useState<string | null>(null);
 	const [roommateSelections, setRoommateSelections] = useState<
 		Record<string, { groceries: string[]; prices: number[] }>
 	>({});

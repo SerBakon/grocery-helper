@@ -20,7 +20,7 @@ export default function GroceryPicker({
 }) {
 	const [groceries, setGroceries] = useState<string[]>([]);
 	const [prices, setPrices] = useState<number[]>([]);
-	const [addingGrocery, setAddingGrocery] = useState(false);
+	const [addingGrocery, setAddingGrocery] = useState(true);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -49,7 +49,6 @@ export default function GroceryPicker({
 			price,
 			numberOfPeople: 1,
 		});
-		setAddingGrocery(false);
 		setGroceries((prev) => [...prev, grocery]);
 		setPrices((prev) => [...prev, price]);
 	};
@@ -64,12 +63,12 @@ export default function GroceryPicker({
 		<div className="flex flex-col gap-5 rounded-lg border bg-green-200 p-5">
 			<div className="flex justify-between">
 				<span className="font-bold text-2xl">Select Your Groceries</span>
-				<Button
+				{/* <Button
 					onClick={addingGroceryHandler}
 					className="cursor-pointer rounded-lg bg-gray-600 px-4 py-2 text-background hover:bg-gray-500"
 				>
 					Add Grocery
-				</Button>
+				</Button> */}
 			</div>
 			<div className="w-full border border-accent" />
 			<div className="h-150 overflow-auto">
