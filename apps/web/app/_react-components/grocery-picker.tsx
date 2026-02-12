@@ -84,6 +84,19 @@ export default function GroceryPicker({
 			<div className="h-150 overflow-auto">
 				<form
 					action={addGroceryHandler}
+					onSubmit={(event) => {
+						const nameValue = nameInputRef.current?.value.trim() ?? "";
+						const priceValue = priceInputRef.current?.value.trim() ?? "";
+						if (!nameValue) {
+							event.preventDefault();
+							nameInputRef.current?.focus();
+							return;
+						}
+						if (!priceValue) {
+							event.preventDefault();
+							priceInputRef.current?.focus();
+						}
+					}}
 					className="mt-1 mb-5 ml-1 flex items-center justify-between gap-5"
 				>
 					<Input
