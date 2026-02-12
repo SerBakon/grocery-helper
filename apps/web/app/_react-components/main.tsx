@@ -56,6 +56,7 @@ export default function Main() {
 			};
 		});
 	};
+	const hasSelectedGrocery = currentSelection.groceries.length > 0;
 	return (
 		<main className="m-10 grid grid-cols-3 gap-5 rounded-lg border-5 border-secondary p-10">
 			<RoommatePicker
