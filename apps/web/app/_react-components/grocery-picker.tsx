@@ -44,7 +44,6 @@ export default function GroceryPicker({
 		await addGrocery({
 			name: grocery,
 			price,
-			numberOfPeople: 1,
 		});
 		setGroceries((prev) => [...prev, grocery]);
 		setPrices((prev) => [...prev, price]);

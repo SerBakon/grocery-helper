@@ -36,7 +36,7 @@ const groceryItemSchema = new mongoose.Schema(
 		name: { type: String, required: true },
 		price: { type: Number, required: true },
 		numberOfItems: { type: Number, default: 1 },
-		numberOfPeople: { type: Number, required: true },
+		numberOfPeople: { type: Number, default: 0 },
 	},
 	{ collection: "groceries" },
 );

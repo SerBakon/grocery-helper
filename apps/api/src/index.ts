@@ -64,6 +64,33 @@ const router = os.router({
 			groceryListDeletedCount: listResult.deletedCount,
 		};
 	}),
+	getRoommateGroceries: os.input(RoommateSchema).handler(async ({ input }) => {
+		const list = await GroceryList.findOne(
+			{ name: input.name },
+			{ groceries: 1, _id: 0 },
+		).lean();
+		return list?.groceries ?? [];
+	}),
+	incrementGroceryPeople: os
+		.input(GroceryNameSchema)
+		.handler(async ({ input }) => {
+			const result = await GroceryItem.findOneAndUpdate(
+				{ name: input.name },
+				{ $inc: { numberOfPeople: 1 } },
+				{ new: true },
+			);
+			return result;
+		}),
+	decrementGroceryPeople: os
+		.input(GroceryNameSchema)
+		.handler(async ({ input }) => {
+			const result = await GroceryItem.findOneAndUpdate(
+				{ name: input.name },
+				{ $inc: { numberOfPeople: -1 } },
+				{ new: true },
+			);
+			return result;
+		}),
 });
 
 export type AppRouter = typeof router;

@@ -3,6 +3,11 @@ import { useState } from "react";
 import GroceryPicker from "./grocery-picker";
 import RoommatePicker from "./roommate-picker";
 import TotalPrice from "./total-price";
+import {
+	decrementGroceryPeople,
+	getRoommateGroceries,
+	incrementGroceryPeople,
+} from "../_rpc-client/rpc-client";
 
 export default function Main() {
 	const [selectedRoommate, setSelectedRoommate] = useState<string | null>(null);
@@ -25,22 +30,46 @@ export default function Main() {
 				return acc;
 			}, [])
 		: [];
-	const selectRoommate = (roommate: string) => {
+	const selectRoommate = async (roommate: string) => {
 		setSelectedRoommate(roommate);
+		try {
+			const groceryList = await getRoommateGroceries(roommate);
+			setRoommateSelections((prev) => ({
+				...prev,
+				[roommate]: {
+					groceries: groceryList.map((item) => item.name),
+					prices: groceryList.map((item) => item.price),
+				},
+			}));
+		} catch (error) {
+			console.error("Failed to load roommate grocery list", error);
+		}
 	};
-	const selectGrocery = (grocery: string, price: number) => {
+	const selectGrocery = async (grocery: string, price: number) => {
 		if (!selectedRoommate) return;
-		setRoommateSelections((prev) => {
-			const existing = prev[selectedRoommate] ?? {
-				groceries: [],
-				prices: [],
-			};
+		const existing = roommateSelections[selectedRoommate] ?? {
+			groceries: [],
+			prices: [],
+		};
 
-			const index = existing.groceries.indexOf(grocery);
+		const index = existing.groceries.indexOf(grocery);
+		const isRemoving = index !== -1;
+
+		try {
+			if (isRemoving) {
+				await decrementGroceryPeople(grocery);
+			} else {
+				await incrementGroceryPeople(grocery);
+			}
+		} catch (error) {
+			console.error("Failed to update grocery people count", error);
+		}
+
+		setRoommateSelections((prev) => {
 			let groceries: string[];
 			let prices: number[];
 
-			if (index !== -1) {
+			if (isRemoving) {
 				groceries = existing.groceries.filter((_, i) => i !== index);
 				prices = existing.prices.filter((_, i) => i !== index);
 			} else {

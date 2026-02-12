@@ -14,7 +14,7 @@ export const GroceryItemSchema = z.object({
 	name: z.string(),
 	price: z.number(),
 	numberOfItems: z.number().optional(),
-	numberOfPeople: z.number(),
+	numberOfPeople: z.number().optional(),
 });
 
 export const GroceryNameSchema = z.object({

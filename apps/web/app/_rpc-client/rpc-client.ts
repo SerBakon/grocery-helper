@@ -42,3 +42,15 @@ export async function listRoommates() {
 export async function deleteRoommate(name: Roommate["name"]) {
 	return client.deleteRoommate({ name });
 }
+
+export async function getRoommateGroceries(name: Roommate["name"]) {
+	return client.getRoommateGroceries({ name });
+}
+
+export async function incrementGroceryPeople(name: string) {
+	return client.incrementGroceryPeople({ name });
+}
+
+export async function decrementGroceryPeople(name: string) {
+	return client.decrementGroceryPeople({ name });
+}
