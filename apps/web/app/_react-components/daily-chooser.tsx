@@ -160,7 +160,7 @@ export default function DailyChooser() {
 				</div>
 			</div>
 			<div className="w-full border" />
-			<div className="grid h-[80%] grid-cols-2 gap-4 overflow-y-auto">
+			<div className="grid max-h-[400px] grid-cols-2 gap-4 overflow-y-auto">
 				{groceries.map((grocery) => (
 					<Button
 						className={cn(
@@ -174,7 +174,7 @@ export default function DailyChooser() {
 					</Button>
 				))}
 			</div>
-			<div className="flex flex-col gap-1 border-t pt-2 text-lg">
+			<div className="flex flex-col gap-1 border-t pt-2 text-lg max-h-[200px] overflow-auto">
 				<h3 className="font-semibold">Total due by roommate</h3>
 				{roommates.length === 0 ? (
 					<span className="text-sm text-gray-700">No roommates yet.</span>
