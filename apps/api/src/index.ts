@@ -58,7 +58,11 @@ const router = os.router({
 	}),
 	deleteRoommate: os.input(RoommateSchema).handler(async ({ input }) => {
 		const result = await Roommate.deleteOne({ name: input.name });
-		return { deletedCount: result.deletedCount };
+		const listResult = await GroceryList.deleteOne({ name: input.name });
+		return {
+			deletedCount: result.deletedCount,
+			groceryListDeletedCount: listResult.deletedCount,
+		};
 	}),
 });
 
