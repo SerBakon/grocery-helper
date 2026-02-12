@@ -6,6 +6,7 @@ import type {
 	GroceryItem,
 	GroceryItemList,
 	Roommate,
+	WeeklyList,
 } from "../../../api/src/_schemas/zod-schemas";
 
 const link = new RPCLink({
@@ -57,4 +58,12 @@ export async function decrementGroceryPeople(name: string) {
 
 export async function resetGroceries() {
 	return client.resetGroceries();
+}
+
+export async function saveWeeklyList(list: WeeklyList) {
+	return client.saveWeeklyList(list);
+}
+
+export async function getWeeklyList() {
+	return client.getWeeklyList();
 }

@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-import { listGroceries } from "../_rpc-client/rpc-client";
+import {
+	getWeeklyList,
+	listGroceries,
+	saveWeeklyList,
+} from "../_rpc-client/rpc-client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { set } from "mongoose";
 
 export default function DailyChooser() {
 	const [groceries, setGroceries] = useState<string[]>([]);
@@ -10,13 +13,17 @@ export default function DailyChooser() {
 
 	useEffect(() => {
 		let isMounted = true;
-		const loadGroceries = async () => {
-			const items = await listGroceries();
+		const loadData = async () => {
+			const [items, weekly] = await Promise.all([
+				listGroceries(),
+				getWeeklyList(),
+			]);
 			if (!isMounted) return;
 			setGroceries(items.map((item) => item.name));
+			setWeeklyList(new Set(weekly.groceries));
 		};
-		loadGroceries().catch((error) => {
-			console.error("Failed to load groceries", error);
+		loadData().catch((error) => {
+			console.error("Failed to load daily chooser data", error);
 		});
 		return () => {
 			isMounted = false;
@@ -39,9 +46,16 @@ export default function DailyChooser() {
 		}
 	};
 
+	const handleSave = async () => {
+		await saveWeeklyList({ groceries: Array.from(weeklyList) });
+	};
+
 	return (
 		<div className="flex flex-col gap-2 rounded-lg border bg-purple-300 p-5">
-			<h2 className="font-bold text-2xl">Weekly List</h2>
+			<div className="flex items-center justify-between gap-3">
+				<h2 className="font-bold text-2xl">Weekly List</h2>
+				<Button onClick={handleSave}>Save</Button>
+			</div>
 			<div className="w-full border" />
 			<div className="grid h-[80%] grid-cols-2 gap-4 overflow-y-auto">
 				{groceries.map((grocery) => (

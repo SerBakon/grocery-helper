@@ -51,3 +51,13 @@ const roommateSchema = new mongoose.Schema(
 );
 
 export const Roommate = mongoose.model("Roommate", roommateSchema);
+
+const weeklyListSchema = new mongoose.Schema(
+	{
+		name: { type: String, required: true },
+		groceries: [{ type: String, required: true }],
+	},
+	{ collection: "weeklylist" },
+);
+
+export const WeeklyList = mongoose.model("WeeklyList", weeklyListSchema);

@@ -9,11 +9,13 @@ import {
 	GroceryListSchema,
 	GroceryNameSchema,
 	RoommateSchema,
+	WeeklyListSchema,
 } from "./_schemas/zod-schemas";
 import {
 	GroceryItem,
 	GroceryList,
 	Roommate,
+	WeeklyList,
 } from "./_schemas/mongoose-schemas";
 
 // Define your router
@@ -101,6 +103,21 @@ const router = os.router({
 			{ $set: { numberOfPeople: 0 } },
 		);
 		return { updatedCount: result.modifiedCount };
+	}),
+	saveWeeklyList: os.input(WeeklyListSchema).handler(async ({ input }) => {
+		const savedList = await WeeklyList.findOneAndUpdate(
+			{ name: "weeklylist" },
+			{ $set: { name: "weeklylist", groceries: input.groceries } },
+			{ new: true, upsert: true },
+		);
+		return savedList;
+	}),
+	getWeeklyList: os.handler(async () => {
+		const list = await WeeklyList.findOne(
+			{ name: "weeklylist" },
+			{ groceries: 1, _id: 0 },
+		).lean();
+		return { groceries: list?.groceries ?? [] };
 	}),
 });
 
