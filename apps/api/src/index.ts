@@ -1,19 +1,32 @@
 // server.ts
 import { Elysia } from "elysia";
+import { cors } from "@elysiajs/cors";
 import { RPCHandler } from "@orpc/server/fetch";
 import { onError } from "@orpc/server";
 import { os } from "@orpc/server";
-import { GroceryItemSchema } from "./_schemas/zod-schemas";
-import { GroceryList } from "./_schemas/mongoose-schemas";
+import { GroceryItemSchema, GroceryListSchema } from "./_schemas/zod-schemas";
+import { GroceryItem, GroceryList } from "./_schemas/mongoose-schemas";
 
 // Define your router
 const router = os.router({
-	addGroceryList: os.input(GroceryItemSchema).handler(async (input) => {
-		// Save to MongoDB
-		const savedList = await GroceryList.create(input);
+	addGroceryList: os.input(GroceryListSchema).handler(async ({ input }) => {
+		// Upsert by name so existing lists are mutated instead of duplicated.
+		const savedList = await GroceryList.findOneAndUpdate(
+			{ name: input.name },
+			{ $set: { groceries: input.groceries } },
+			{ new: true, upsert: true },
+		);
+		console.log("Saved grocery list", savedList);
 		return savedList;
 	}),
+	addGrocery: os.input(GroceryItemSchema).handler(async ({ input }) => {
+		const savedGrocery = await GroceryItem.create(input);
+		console.log("Saved grocery item", savedGrocery);
+		return savedGrocery;
+	}),
 });
+
+export type AppRouter = typeof router;
 
 const handler = new RPCHandler(router, {
 	interceptors: [
@@ -23,7 +36,12 @@ const handler = new RPCHandler(router, {
 	],
 });
 
-const app = new Elysia();
+const app = new Elysia().use(
+	cors({
+		origin: "http://localhost:3000",
+		methods: ["POST", "GET", "OPTIONS"],
+	}),
+);
 
 // Test endpoints
 app.get("/ping", () => "pong");

@@ -8,7 +8,6 @@ dotenv.config({ path: path.resolve(process.cwd(), "../../.env") });
 
 const uri = process.env.MONGODB_URI;
 if (!uri) throw new Error("MONGODB_URI is missing");
-dotenv.config({ path: "../../../../.env" });
 
 mongoose
 	.connect(uri, {
@@ -17,14 +16,29 @@ mongoose
 	.then(() => console.log("Connected to MongoDB"))
 	.catch((err) => console.error("MongoDB connection error:", err));
 
-const groceryItemSchema = new mongoose.Schema({
-	name: { type: String, required: true },
-	groceries: [
-		{
-			name: { type: String, required: true },
-			price: { type: Number, required: true },
-		},
-	],
-});
+const groceryListSchema = new mongoose.Schema(
+	{
+		name: { type: String, required: true },
+		groceries: [
+			{
+				name: { type: String, required: true },
+				price: { type: Number, required: true },
+			},
+		],
+	},
+	{ collection: "grocerylists" },
+);
 
-export const GroceryList = mongoose.model("GroceryList", groceryItemSchema);
+export const GroceryList = mongoose.model("GroceryList", groceryListSchema);
+
+const groceryItemSchema = new mongoose.Schema(
+	{
+		name: { type: String, required: true },
+		price: { type: Number, required: true },
+		numberOfItems: { type: Number, default: 1 },
+		numberOfPeople: { type: Number, required: true },
+	},
+	{ collection: "groceries" },
+);
+
+export const GroceryItem = mongoose.model("GroceryItem", groceryItemSchema);

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Trash } from "lucide-react";
 import { useState } from "react";
+import { addGrocery } from "../_rpc-client/rpc-client";
 
 export default function GroceryPicker({
 	selectedGroceries,
@@ -24,9 +25,14 @@ export default function GroceryPicker({
 	const addingGroceryHandler = () => {
 		setAddingGrocery(true);
 	};
-	const addGrocery = (data: FormData) => {
+	const addGroceryHandler = async (data: FormData) => {
 		const grocery = data.get("groceryName") as string;
 		const price = parseFloat(data.get("groceryPrice") as string);
+		await addGrocery({
+			name: grocery,
+			price,
+			numberOfPeople: 1,
+		});
 		setAddingGrocery(false);
 		setGroceries((prev) => [...prev, grocery]);
 		setPrices((prev) => [...prev, price]);
@@ -50,7 +56,7 @@ export default function GroceryPicker({
 			<div className="h-150 overflow-auto">
 				{addingGrocery && (
 					<form
-						action={addGrocery}
+						action={addGroceryHandler}
 						className="mt-1 mb-5 ml-1 flex items-center justify-between gap-5"
 					>
 						<Input

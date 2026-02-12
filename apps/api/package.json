@@ -1,18 +1,19 @@
 {
-  "name": "api",
-  "version": "1.0.50",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
-  },
-  "dependencies": {
-    "@orpc/server": "^1.13.4",
-    "elysia": "latest",
-    "mongodb": "^7.1.0",
-    "mongoose": "^9.2.1"
-  },
-  "devDependencies": {
-    "bun-types": "latest"
-  },
-  "module": "src/index.js"
+	"name": "api",
+	"version": "1.0.50",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "bun run --watch src/index.ts"
+	},
+	"dependencies": {
+		"@orpc/server": "^1.13.4",
+		"@elysiajs/cors": "^1.1.0",
+		"elysia": "latest",
+		"mongodb": "^7.1.0",
+		"mongoose": "^9.2.1"
+	},
+	"devDependencies": {
+		"bun-types": "latest"
+	},
+	"module": "src/index.js"
 }
