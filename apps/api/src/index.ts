@@ -7,6 +7,7 @@ import { os } from "@orpc/server";
 import {
 	GroceryItemSchema,
 	GroceryListSchema,
+	GroceryNameSchema,
 	RoommateSchema,
 } from "./_schemas/zod-schemas";
 import {
@@ -38,6 +39,10 @@ const router = os.router({
 			.lean();
 		return groceries;
 	}),
+	deleteGrocery: os.input(GroceryNameSchema).handler(async ({ input }) => {
+		const result = await GroceryItem.deleteOne({ name: input.name });
+		return { deletedCount: result.deletedCount };
+	}),
 	addRoommate: os.input(RoommateSchema).handler(async ({ input }) => {
 		const savedRoommate = await Roommate.create({
 			name: input.name,
@@ -50,6 +55,10 @@ const router = os.router({
 			.sort({ name: 1 })
 			.lean();
 		return roommates;
+	}),
+	deleteRoommate: os.input(RoommateSchema).handler(async ({ input }) => {
+		const result = await Roommate.deleteOne({ name: input.name });
+		return { deletedCount: result.deletedCount };
 	}),
 });
 

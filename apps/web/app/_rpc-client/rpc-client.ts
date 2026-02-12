@@ -27,10 +27,18 @@ export async function listGroceries() {
 	return client.listGroceries();
 }
 
+export async function deleteGrocery(name: GroceryItem["name"]) {
+	return client.deleteGrocery({ name });
+}
+
 export async function addRoommate(name: Roommate["name"]) {
 	return client.addRoommate({ name });
 }
 
 export async function listRoommates() {
 	return client.listRoommates();
+}
+
+export async function deleteRoommate(name: Roommate["name"]) {
+	return client.deleteRoommate({ name });
 }

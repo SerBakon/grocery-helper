@@ -5,7 +5,11 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Trash } from "lucide-react";
 import { useEffect, useState } from "react";
-import { addGrocery, listGroceries } from "../_rpc-client/rpc-client";
+import {
+	addGrocery,
+	deleteGrocery as deleteGroceryRPC,
+	listGroceries,
+} from "../_rpc-client/rpc-client";
 
 export default function GroceryPicker({
 	selectedGroceries,
@@ -49,7 +53,10 @@ export default function GroceryPicker({
 		setGroceries((prev) => [...prev, grocery]);
 		setPrices((prev) => [...prev, price]);
 	};
-	const deleteGrocery = (index: number) => {
+	const deleteGrocery = async (index: number) => {
+		const grocery = groceries[index];
+		if (!grocery) return;
+		await deleteGroceryRPC(grocery);
 		setGroceries((prev) => prev.filter((_, i) => i !== index));
 		setPrices((prev) => prev.filter((_, i) => i !== index));
 	};

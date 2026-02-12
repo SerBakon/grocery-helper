@@ -17,6 +17,10 @@ export const GroceryItemSchema = z.object({
 	numberOfPeople: z.number(),
 });
 
+export const GroceryNameSchema = z.object({
+	name: z.string(),
+});
+
 export const RoommateSchema = z.object({
 	name: z.string(),
 });

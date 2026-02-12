@@ -4,7 +4,11 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Trash } from "lucide-react";
 import { useEffect, useState } from "react";
-import { addRoommate, listRoommates } from "../_rpc-client/rpc-client";
+import {
+	addRoommate,
+	deleteRoommate,
+	listRoommates,
+} from "../_rpc-client/rpc-client";
 
 export default function RoommatePicker({
 	selectedRoommate,
@@ -43,7 +47,8 @@ export default function RoommatePicker({
 		}
 	};
 
-	const removeRoommate = (name: string) => {
+	const removeRoommate = async (name: string) => {
+		await deleteRoommate(name);
 		setRoommates((prev) => prev.filter((roommate) => roommate !== name));
 	};
 
