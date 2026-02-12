@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Trash } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
 	addGrocery,
 	deleteGrocery as deleteGroceryRPC,
@@ -20,6 +20,8 @@ export default function GroceryPicker({
 }) {
 	const [groceries, setGroceries] = useState<string[]>([]);
 	const [prices, setPrices] = useState<number[]>([]);
+	const nameInputRef = useRef<HTMLInputElement>(null);
+	const priceInputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -46,6 +48,7 @@ export default function GroceryPicker({
 		});
 		setGroceries((prev) => [...prev, grocery]);
 		setPrices((prev) => [...prev, price]);
+		setTimeout(() => nameInputRef.current?.focus(), 0);
 	};
 	const deleteGrocery = async (index: number) => {
 		const grocery = groceries[index];
@@ -66,14 +69,37 @@ export default function GroceryPicker({
 					className="mt-1 mb-5 ml-1 flex items-center justify-between gap-5"
 				>
 					<Input
+						ref={nameInputRef}
 						name="groceryName"
 						placeholder="Grocery"
 						className="border-primary"
+						onKeyDown={(e) => {
+							if (e.key === "Enter") {
+								e.preventDefault();
+								const nameValue = e.currentTarget.value.trim();
+								if (nameValue) {
+									priceInputRef.current?.focus();
+								}
+							}
+						}}
 					/>
 					<Input
+						ref={priceInputRef}
 						name="groceryPrice"
 						placeholder="Price"
 						className="border-primary"
+						onKeyDown={(e) => {
+							if (e.key === "Enter") {
+								e.preventDefault();
+								const nameValue = nameInputRef.current?.value.trim();
+								const priceValue = e.currentTarget.value.trim();
+								if (!nameValue) {
+									nameInputRef.current?.focus();
+								} else if (nameValue && priceValue) {
+									e.currentTarget.form?.requestSubmit();
+								}
+							}
+						}}
 					/>
 					<Button
 						type="submit"
