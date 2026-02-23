@@ -84,6 +84,10 @@ const router = os.router({
 		const result = await GroceryItem.deleteOne({ name: input.name });
 		await WeeklyList.updateOne(
 			{ name: "weeklylist" },
+			{ $pull: { groceries: { name: input.name } } },
+		);
+		await WeeklyList.updateOne(
+			{ name: "weeklylist" },
 			{ $pull: { groceries: input.name } },
 		);
 		return { deletedCount: result.deletedCount };
@@ -145,9 +149,15 @@ const router = os.router({
 		return { updatedCount: result.modifiedCount };
 	}),
 	saveWeeklyList: os.input(WeeklyListSchema).handler(async ({ input }) => {
+		const normalizedGroceries = (input.groceries ?? []).map((item) => {
+			if (typeof item === "string") {
+				return { name: item, count: 1 };
+			}
+			return item;
+		});
 		const savedList = await WeeklyList.findOneAndUpdate(
 			{ name: "weeklylist" },
-			{ $set: { name: "weeklylist", groceries: input.groceries } },
+			{ $set: { name: "weeklylist", groceries: normalizedGroceries } },
 			{ new: true, upsert: true },
 		);
 		return savedList;
@@ -157,7 +167,13 @@ const router = os.router({
 			{ name: "weeklylist" },
 			{ groceries: 1, _id: 0 },
 		).lean();
-		return { groceries: list?.groceries ?? [] };
+		const groceries = (list?.groceries ?? []).map((item: unknown) => {
+			if (typeof item === "string") {
+				return { name: item, count: 1 };
+			}
+			return item as { name: string; count: number };
+		});
+		return { groceries };
 	}),
 	add: os.handler(async () => {
 		return seedTestData();

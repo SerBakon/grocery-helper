@@ -55,7 +55,12 @@ export const Roommate = mongoose.model("Roommate", roommateSchema);
 const weeklyListSchema = new mongoose.Schema(
 	{
 		name: { type: String, required: true },
-		groceries: [{ type: String, required: true }],
+		groceries: [
+			{
+				name: { type: String, required: true },
+				count: { type: Number, required: true },
+			},
+		],
 	},
 	{ collection: "weeklylist" },
 );

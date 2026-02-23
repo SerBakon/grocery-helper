@@ -25,8 +25,13 @@ export const RoommateSchema = z.object({
 	name: z.string(),
 });
 
+const WeeklyListItemSchema = z.object({
+	name: z.string(),
+	count: z.number().int().min(1),
+});
+
 export const WeeklyListSchema = z.object({
-	groceries: z.array(z.string()),
+	groceries: z.union([z.array(z.string()), z.array(WeeklyListItemSchema)]),
 });
 
 export type GroceryItemList = z.infer<typeof GroceryListSchema>;
