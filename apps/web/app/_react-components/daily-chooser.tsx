@@ -8,6 +8,7 @@ import {
 } from "../_rpc-client/rpc-client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function DailyChooser({
 	refreshToken,
