@@ -141,6 +141,11 @@ export default function DailyChooser({
 		{},
 	);
 
+	const grandTotal = Object.values(totalsByRoommate).reduce(
+		(sum, total) => sum + total,
+		0,
+	);
+
 	const handleSave = async () => {
 		if (!isDirty || saveStatus === "saving") return;
 		setSaveStatus("saving");
@@ -213,12 +218,18 @@ export default function DailyChooser({
 				{roommates.length === 0 ? (
 					<span className="text-sm text-gray-700">No roommates yet.</span>
 				) : (
-					roommates.map((name) => (
-						<div key={name} className="flex w-full justify-between">
-							<span>{name}</span>
-							<span>${(totalsByRoommate[name] ?? 0).toFixed(2)}</span>
+					<>
+						{roommates.map((name) => (
+							<div key={name} className="flex w-full justify-between">
+								<span>{name}</span>
+								<span>${(totalsByRoommate[name] ?? 0).toFixed(2)}</span>
+							</div>
+						))}
+						<div className="flex w-full justify-between border-t pt-2 font-semibold">
+							<span>Total</span>
+							<span>${grandTotal.toFixed(2)}</span>
 						</div>
-					))
+					</>
 				)}
 			</div>
 		</div>
