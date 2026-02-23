@@ -106,6 +106,20 @@ const router = os.router({
 		return roommates;
 	}),
 	deleteRoommate: os.input(RoommateSchema).handler(async ({ input }) => {
+		// Get the roommate's grocery list before deleting
+		const groceryList = await GroceryList.findOne({ name: input.name }).lean();
+
+		// Decrement numberOfPeople for each item in the roommate's list
+		if (groceryList?.groceries) {
+			for (const grocery of groceryList.groceries) {
+				await GroceryItem.findOneAndUpdate(
+					{ name: grocery.name },
+					{ $inc: { numberOfPeople: -1 } },
+				);
+			}
+		}
+
+		// Delete the roommate and their grocery list
 		const result = await Roommate.deleteOne({ name: input.name });
 		const listResult = await GroceryList.deleteOne({ name: input.name });
 		return {
