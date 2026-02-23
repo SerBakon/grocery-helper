@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Span } from "next/dist/trace";
 
 export default function DailyChooser({
 	refreshToken,
@@ -173,7 +174,13 @@ export default function DailyChooser({
 	return (
 		<div className="flex flex-col gap-2 rounded-lg border bg-purple-300 p-5">
 			<div className="flex items-center justify-between gap-3">
-				<h2 className="font-bold text-2xl">Weekly List</h2>
+				<div className="flex flex-col">
+					<h2 className="font-bold text-2xl">Weekly List</h2>
+					<span className="text-sm text-gray-700">
+						Shift+click to decrease count.
+					</span>
+				</div>
+
 				<div className="flex items-center gap-3">
 					{saveStatus === "saved" ? (
 						<span className="text-sm text-green-700">Saved</span>
