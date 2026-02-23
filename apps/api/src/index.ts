@@ -90,6 +90,11 @@ const router = os.router({
 			{ name: "weeklylist" },
 			{ $pull: { groceries: input.name } },
 		);
+		// Remove the grocery from all roommates' grocery lists
+		await GroceryList.updateMany(
+			{},
+			{ $pull: { groceries: { name: input.name } } },
+		);
 		return { deletedCount: result.deletedCount };
 	}),
 	addRoommate: os.input(RoommateSchema).handler(async ({ input }) => {
