@@ -222,12 +222,14 @@ export default function DailyChooser({
 						{roommates.map((name) => (
 							<div key={name} className="flex w-full justify-between">
 								<span>{name}</span>
-								<span>${(totalsByRoommate[name] ?? 0).toFixed(2)}</span>
+								<span className="mr-5">
+									${(totalsByRoommate[name] ?? 0).toFixed(2)}
+								</span>
 							</div>
 						))}
 						<div className="flex w-full justify-between border-t pt-2 font-semibold">
 							<span>Total</span>
-							<span>${grandTotal.toFixed(2)}</span>
+							<span className="mr-5">${grandTotal.toFixed(2)}</span>
 						</div>
 					</>
 				)}
