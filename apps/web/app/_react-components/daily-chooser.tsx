@@ -213,7 +213,7 @@ export default function DailyChooser({
 					</Button>
 				))}
 			</div>
-			<div className="flex flex-col gap-1 border-t pt-2 text-lg max-h-[200px] overflow-auto">
+			<ScrollArea className="flex flex-col gap-1 border-t pt-2 text-lg max-h-[200px]">
 				<h3 className="font-semibold">Total due by roommate</h3>
 				{roommates.length === 0 ? (
 					<span className="text-sm text-gray-700">No roommates yet.</span>
@@ -231,7 +231,7 @@ export default function DailyChooser({
 						</div>
 					</>
 				)}
-			</div>
+			</ScrollArea>
 		</div>
 	);
 }

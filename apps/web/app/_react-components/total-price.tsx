@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEffect, useRef, useState } from "react";
 
 type RoommateGrocery = {
@@ -57,9 +58,9 @@ export default function TotalPrice({
 	};
 
 	return (
-		<div className="flex flex-col gap-2 rounded-lg border bg-red-300 p-5">
+		<ScrollArea className="flex max-h-[800px] flex-col gap-2 rounded-lg border bg-red-300 p-5">
 			<h2 className="font-bold text-2xl">Total Price for {roommate}:</h2>
-			<div className="w-full border" />
+			<div className="w-full border my-5" />
 			<div className="flex flex-col gap-1">
 				{itemsForRoommate.map((item, index) => (
 					<div
@@ -99,6 +100,6 @@ export default function TotalPrice({
 					) : null}
 				</div>
 			) : null}
-		</div>
+		</ScrollArea>
 	);
 }

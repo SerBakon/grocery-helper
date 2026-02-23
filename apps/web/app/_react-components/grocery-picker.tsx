@@ -87,7 +87,7 @@ export default function GroceryPicker({
 				</Button> */}
 			</div>
 			<div className="w-full border border-accent" />
-			<ScrollArea className="h-150 overflow-auto">
+			<ScrollArea className="h-150">
 				<form
 					action={addGroceryHandler}
 					onSubmit={(event) => {
