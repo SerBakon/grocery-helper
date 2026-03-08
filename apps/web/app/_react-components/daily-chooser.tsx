@@ -7,9 +7,9 @@ import {
 	getRoommateGroceries,
 } from "../_rpc-client/rpc-client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Span } from "next/dist/trace";
 
 export default function DailyChooser({
 	refreshToken,
@@ -21,6 +21,7 @@ export default function DailyChooser({
 	>([]);
 	const [weeklyList, setWeeklyList] = useState<Record<string, number>>({});
 	const [roommates, setRoommates] = useState<string[]>([]);
+	const [searchTerm, setSearchTerm] = useState("");
 	const [roommateLists, setRoommateLists] = useState<
 		Record<string, { name: string; price: number }[]>
 	>({});
@@ -100,6 +101,10 @@ export default function DailyChooser({
 	};
 
 	const isDirty = !areCountsEqual(weeklyList, savedWeeklyListRef.current);
+
+	const filteredGroceries = groceries.filter((grocery) =>
+		grocery.name.toLowerCase().includes(searchTerm.toLowerCase().trim()),
+	);
 
 	const updateWeeklyList = (grocery: string, delta: number) => {
 		setWeeklyList((prev) => {
@@ -198,8 +203,14 @@ export default function DailyChooser({
 				</div>
 			</div>
 			<div className="w-full border" />
+			<Input
+				value={searchTerm}
+				onChange={(event) => setSearchTerm(event.target.value)}
+				placeholder="Search groceries"
+				className="mb-3 border-primary"
+			/>
 			<div className="grid max-h-[400px] grid-cols-2 gap-4 overflow-y-auto">
-				{groceries.map((grocery) => (
+				{filteredGroceries.map((grocery) => (
 					<Button
 						className={cn(
 							"mb-2 flex cursor-pointer items-center justify-between rounded-lg border bg-primary/50 p-3 hover:bg-primary/90",
