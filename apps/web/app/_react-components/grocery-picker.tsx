@@ -31,10 +31,14 @@ export default function GroceryPicker({
 	const [items, setItems] = useState<
 		{ name: string; price: number; numberOfPeople?: number }[]
 	>([]);
+	const [searchTerm, setSearchTerm] = useState("");
 	const selectedSet = new Set(selectedGroceries ?? []);
 	const committedSet = new Set(committedGroceries);
 	const nameInputRef = useRef<HTMLInputElement>(null);
 	const priceInputRef = useRef<HTMLInputElement>(null);
+	const filteredItems = items.filter((item) =>
+		item.name.toLowerCase().includes(searchTerm.toLowerCase().trim()),
+	);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -61,11 +65,9 @@ export default function GroceryPicker({
 		onGroceryChanged();
 		setTimeout(() => nameInputRef.current?.focus(), 0);
 	};
-	const deleteGrocery = async (index: number) => {
-		const grocery = items[index];
-		if (!grocery) return;
-		await deleteGroceryRPC(grocery.name);
-		setItems((prev) => prev.filter((_, i) => i !== index));
+	const deleteGrocery = async (groceryName: string) => {
+		await deleteGroceryRPC(groceryName);
+		setItems((prev) => prev.filter((item) => item.name !== groceryName));
 		onGroceryChanged();
 	};
 	const resetGroceriesHandler = async () => {
@@ -145,8 +147,14 @@ export default function GroceryPicker({
 						Add
 					</Button>
 				</form>
-				{items.length > 0 &&
-					items.map((item, index) => (
+				<Input
+					value={searchTerm}
+					onChange={(event) => setSearchTerm(event.target.value)}
+					placeholder="Search groceries"
+					className="mb-4 ml-1 border-primary"
+				/>
+				{filteredItems.length > 0 &&
+					filteredItems.map((item) => (
 						<div key={item.name} className="flex items-center">
 							<Button
 								onClick={() => selectGrocery(item.name, item.price ?? 0)}
@@ -168,7 +176,7 @@ export default function GroceryPicker({
 								<span>${item.price?.toFixed(2) ?? "0"}</span>
 							</Button>
 							<Trash
-								onClick={() => deleteGrocery(index)}
+								onClick={() => deleteGrocery(item.name)}
 								className="cursor-pointer"
 								size={32}
 							/>
